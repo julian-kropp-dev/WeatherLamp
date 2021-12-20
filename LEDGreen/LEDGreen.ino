@@ -7,10 +7,9 @@
 CRGB leds[NUM_LEDS];
 
 const int x = 100;
-const int BRIGHTNESS = 80
-
-    void
-    setup()
+const int BRIGHTNESS = 80;
+    
+void setup()
 {
   Serial.begin(9600);
   // tell FastLED about the LED strip configuration
