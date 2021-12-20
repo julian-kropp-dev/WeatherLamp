@@ -6,6 +6,7 @@
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_LEDS    8
+
 CRGB leds[NUM_LEDS];
 
 #define BRIGHTNESS          80
@@ -27,12 +28,10 @@ void setup() {
 
 //Wird unendlich oft abgespielt
 void loop() {
-  greenfading();
-  delay(1000);
-  greenflashlight();
-  delay(1000);
-  singleflashlight();
-  delay(1000);
+  int y = random(0,3);
+  if (y == 0) greenfading();
+  if (y == 1) greenflashlight();
+  else singleflashlight();
 }
 
 void greenfading() {
