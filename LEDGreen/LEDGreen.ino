@@ -27,6 +27,15 @@ void setup() {
 
 //Wird unendlich oft abgespielt
 void loop() {
+  greenfading();
+  delay(1000);
+  greenflashlight();
+  delay(1000);
+  singleflashlight();
+  delay(1000);
+}
+
+void greenfading() {
   //LEDs nacheinander grün schalten
  for (int i=0; i<8; i++){
     leds[i] = CRGB( 0, 255, 0);
@@ -44,6 +53,33 @@ void loop() {
    delay(x);
   }
   
- 
+}
+
+void greenflashlight() {
+  for (int i=0; i<8; i++){
+    leds[i] = CRGB( 0, 255, 0);
+    FastLED.show(); 
+  }
+  
+  // wenn ganzes LED Band grün, dann 2 Sekunden warten
+ delay(100);
+
+ //LEDs nacheinander ausschalten
+ for (int i=0; i<8; i++){
+   leds[i] = CRGB( 0, 0, 0);
+   FastLED.show(); 
+  }
+}
+
+void singleflashlight() {
+  for (int i=0; i<8; i++){
+    leds[i] = CRGB( 0, 255, 0);
+    FastLED.show(); 
+    delay(50);
+    leds[i] = CRGB( 0, 0, 0);
+    FastLED.show();
+    delay(50); 
+  }
+  
   
 }
