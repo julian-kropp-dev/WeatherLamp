@@ -25,10 +25,10 @@ Adafruit_SSD1306 display(OLED_RESET);
 #define NUM_LEDS    8
 //LED Array mit NUM_LEDS Elementen
 CRGB leds[NUM_LEDS];
-
+#define x 100 //delay Variable 
 // ========================  hier deinen API-Key eintragen!!!  ============================================================================================================
 const String city = "Oldenburg";
-const String api_key = "xxx";    // dein Open-Weather-Map-API-Schluessel, kostenlos beziehbar ueber https://openweathermap.org/
+const String api_key = "939b1ae19ec166845975084831fc2570";    // dein Open-Weather-Map-API-Schluessel, kostenlos beziehbar ueber https://openweathermap.org/
 // ========================================================================================================================================================================
 
 int weatherID = 0;
@@ -234,6 +234,21 @@ void LED_effect_clearSky() { // Effekt, der angezeigt wird, wenn der Himmel klar
 
 
 void LED_effect_thunder() {
+  //LEDs nacheinander gelb schalten
+ for (int i=0; i<8; i++){
+    leds[i] = CRGB( 255, 255, 0);
+    FastLED.show(); 
+    delay(x);
+  }
+
+  
+
+ //LEDs nacheinander ausschalten
+ for (int i=0; i<8; i++){
+   leds[i] = CRGB( 0, 0, 0);
+   FastLED.show(); 
+   delay(x);
+  }
 
 }
 
