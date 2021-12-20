@@ -24,15 +24,12 @@ const int BRIGHTNESS = 80
   FastLED.setMaxPowerInVoltsAndMilliamps(5, 400);
 }
 
-// Wird unendlich oft abgespielt
-void loop()
-{
-  greenfading();
-  delay(1000);
-  greenflashlight();
-  delay(1000);
-  singleflashlight();
-  delay(1000);
+//Wird unendlich oft abgespielt
+void loop() {
+  int y = random(0,3);
+  if (y == 0) greenfading();
+  if (y == 1) greenflashlight();
+  else singleflashlight();
 }
 
 void greenfading()
