@@ -1,0 +1,184 @@
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <Wire.h>
+#define SCREEN_WIDTH 64
+#define SCREEN_HEIGHT 48
+#define OLED_RESET 0
+#define PAUSE 1000
+Adafruit_SSD1306 display(OLED_RESET);
+#include <FastLED.h>
+
+#define LED_PIN     D5
+#define NUM_LEDS    8
+#define BRIGHTNESS  70
+#define LED_TYPE    WS2811
+#define COLOR_ORDER GRB
+CRGB leds[NUM_LEDS];
+
+#define UPDATES_PER_SECOND 100
+
+
+CRGBPalette16 currentPalette;
+TBlendType    currentBlending;
+
+extern CRGBPalette16 myRedWhiteBluePalette;
+extern const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
+
+const unsigned char myBitmap [] PROGMEM = {
+  0xff, 0xff, 0xf9, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xf8, 0xff, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0xff, 0xe2, 0x3f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x87, 0x3f, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0xff, 0xc7, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xe0, 0x7f, 0xf7, 0x3f, 0xff, 0xff, 
+  0xff, 0xff, 0xe0, 0x3f, 0xf3, 0x3f, 0xff, 0xff, 0xff, 0xff, 0xe1, 0xff, 0xf3, 0x31, 0x80, 0x67, 
+  0xff, 0xff, 0xf9, 0xff, 0xf0, 0xa6, 0xb3, 0x6f, 0xff, 0xff, 0xf8, 0xff, 0xf4, 0xa0, 0xb3, 0xaf, 
+  0xff, 0xff, 0xf0, 0xff, 0xf4, 0xa7, 0xb3, 0x9f, 0xff, 0xff, 0xe4, 0xff, 0xf7, 0xb0, 0xb3, 0x9f, 
+  0xff, 0xff, 0xce, 0x7f, 0xff, 0xff, 0xff, 0x9f, 0xff, 0xff, 0x1e, 0x3f, 0xff, 0xff, 0xff, 0x3f, 
+  0xff, 0xfe, 0x3f, 0x3f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfc, 0x7f, 0x9f, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0xf0, 0x0f, 0xcf, 0xee, 0xff, 0xff, 0xff, 0xff, 0xf8, 0x03, 0xe7, 0xed, 0xff, 0xff, 0xff, 
+  0xff, 0xfc, 0x3f, 0xe7, 0xf1, 0xf0, 0x10, 0xc7, 0xff, 0xfc, 0xff, 0xc7, 0xf3, 0xf6, 0xde, 0x5f, 
+  0xff, 0xf9, 0xff, 0xc7, 0xf3, 0x06, 0xd0, 0x47, 0xff, 0xe3, 0xff, 0xe3, 0xed, 0xf6, 0xd6, 0x73, 
+  0xff, 0x87, 0xff, 0xf8, 0xcc, 0xf6, 0xd0, 0x47, 0xff, 0x0f, 0xff, 0xe0, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0x1f, 0xf8, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0x8f, 0xf8, 0x07, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0xc3, 0xff, 0xef, 0xff, 0xff, 0xff, 0xff, 0xff, 0xe7, 0xff, 0xf7, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0xcf, 0xff, 0xfb, 0xff, 0xff, 0xff, 0xff, 0xfe, 0x3f, 0xff, 0xfc, 0x3f, 0xff, 0xff, 0xff, 
+  0xfc, 0x7f, 0xff, 0xff, 0x0f, 0xff, 0xff, 0xff, 0xf8, 0x3f, 0xff, 0xff, 0x0f, 0xff, 0xff, 0xff, 
+  0xfc, 0x01, 0xff, 0xff, 0x1f, 0xff, 0xff, 0xff, 0xff, 0x03, 0xff, 0xfc, 0x3f, 0xff, 0xff, 0xff, 
+  0xfe, 0x7f, 0xff, 0xc0, 0xff, 0xff, 0xff, 0xff, 0xfc, 0xff, 0xff, 0xe3, 0xff, 0xff, 0xff, 0xff, 
+  0xf9, 0xfe, 0x3f, 0xf9, 0xff, 0xff, 0xff, 0xff, 0xe3, 0xff, 0x0f, 0xfc, 0x1f, 0xff, 0xff, 0xff, 
+  0xc3, 0xff, 0x01, 0xff, 0x0f, 0xff, 0xff, 0xff, 0xe0, 0x00, 0x00, 0x00, 0x1f, 0x9f, 0x5f, 0xff, 
+  0xf0, 0x03, 0xc0, 0x00, 0x7f, 0x8d, 0x51, 0x1f, 0xfe, 0x0f, 0xc1, 0xef, 0xff, 0x8d, 0x59, 0x6f, 
+  0xff, 0xff, 0x81, 0xff, 0xfe, 0x8d, 0x55, 0x6f, 0xff, 0xff, 0x81, 0xff, 0xff, 0x91, 0x51, 0x6f, 
+  0xff, 0xff, 0x81, 0xff, 0xff, 0xbf, 0xff, 0xff, 0xff, 0xff, 0x83, 0xff, 0xff, 0xff, 0xff, 0xff, 
+  0xff, 0xff, 0xc7, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+
+
+
+
+
+void setup() {
+  display.begin(SSD1306_SWITCHCAPVCC,0x3C);
+  display.fillScreen(0);
+  display.clearDisplay(); //for Clearing the display
+  display.drawBitmap(0, 0, myBitmap, 64, 48, WHITE); // display.drawBitmap(x position, y position, bitmap data, bitmap width, bitmap height, color)
+  display.display();  
+  delay( 3000 ); // power-up safety delay
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+  FastLED.setBrightness(  BRIGHTNESS );
+  currentPalette = RainbowColors_p;
+  currentBlending = LINEARBLEND;
+}
+
+void loop()
+{
+    ChangePalettePeriodically();
+    
+    static uint8_t startIndex = 0;
+    startIndex = startIndex + 1; /* motion speed */
+    
+    FillLEDsFromPaletteColors( startIndex);
+    
+    FastLED.show();
+    FastLED.delay(1000 / UPDATES_PER_SECOND);
+}
+
+void FillLEDsFromPaletteColors( uint8_t colorIndex)
+{
+    uint8_t brightness = 255;
+    
+    for( int i = 0; i < NUM_LEDS; ++i) {
+        leds[i] = ColorFromPalette( currentPalette, colorIndex, brightness, currentBlending);
+        colorIndex += 3;
+    }
+}
+
+
+// There are several different palettes of colors demonstrated here.
+//
+// FastLED provides several 'preset' palettes: RainbowColors_p, RainbowStripeColors_p,
+// OceanColors_p, CloudColors_p, LavaColors_p, ForestColors_p, and PartyColors_p.
+//
+// Additionally, you can manually define your own color palettes, or you can write
+// code that creates color palettes on the fly.  All are shown here.
+
+void ChangePalettePeriodically()
+{
+    uint8_t secondHand = (millis() / 1000) % 60;
+    static uint8_t lastSecond = 99;
+    
+    if( lastSecond != secondHand) {
+        lastSecond = secondHand;
+        if( secondHand ==  0)  { currentPalette = RainbowColors_p;         currentBlending = LINEARBLEND; }
+        if( secondHand == 10)  { currentPalette = RainbowStripeColors_p;   currentBlending = NOBLEND;  }
+        if( secondHand == 15)  { currentPalette = RainbowStripeColors_p;   currentBlending = LINEARBLEND; }
+        if( secondHand == 20)  { SetupPurpleAndGreenPalette();             currentBlending = LINEARBLEND; }
+        if( secondHand == 25)  { SetupTotallyRandomPalette();              currentBlending = LINEARBLEND; }
+        if( secondHand == 30)  { SetupBlackAndWhiteStripedPalette();       currentBlending = NOBLEND; }
+        if( secondHand == 35)  { SetupBlackAndWhiteStripedPalette();       currentBlending = LINEARBLEND; }
+        if( secondHand == 40)  { currentPalette = CloudColors_p;           currentBlending = LINEARBLEND; }
+        if( secondHand == 45)  { currentPalette = PartyColors_p;           currentBlending = LINEARBLEND; }
+        if( secondHand == 50)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = NOBLEND;  }
+        if( secondHand == 55)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = LINEARBLEND; }
+    }
+}
+
+// This function fills the palette with totally random colors.
+void SetupTotallyRandomPalette()
+{
+    for( int i = 0; i < 16; ++i) {
+        currentPalette[i] = CHSV( random8(), 255, random8());
+    }
+}
+
+// This function sets up a palette of black and white stripes,
+// using code.  Since the palette is effectively an array of
+// sixteen CRGB colors, the various fill_* functions can be used
+// to set them up.
+void SetupBlackAndWhiteStripedPalette()
+{
+    // 'black out' all 16 palette entries...
+    fill_solid( currentPalette, 16, CRGB::Black);
+    // and set every fourth one to white.
+    currentPalette[0] = CRGB::White;
+    currentPalette[4] = CRGB::White;
+    currentPalette[8] = CRGB::White;
+    currentPalette[12] = CRGB::White;
+    
+}
+
+// This function sets up a palette of purple and green stripes.
+void SetupPurpleAndGreenPalette()
+{
+    CRGB purple = CHSV( HUE_PURPLE, 255, 255);
+    CRGB green  = CHSV( HUE_GREEN, 255, 255);
+    CRGB black  = CRGB::Black;
+    
+    currentPalette = CRGBPalette16(
+                                   green,  green,  black,  black,
+                                   purple, purple, black,  black,
+                                   green,  green,  black,  black,
+                                   purple, purple, black,  black );
+}
+
+
+
+const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM =
+{
+    CRGB::Red,
+    CRGB::Gray, // 'white' is too bright compared to red and blue
+    CRGB::Blue,
+    CRGB::Black,
+    
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Black,
+    
+    CRGB::Red,
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Blue,
+    CRGB::Black,
+    CRGB::Black
+};
