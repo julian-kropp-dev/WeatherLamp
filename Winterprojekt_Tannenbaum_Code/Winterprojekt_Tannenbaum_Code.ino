@@ -1,34 +1,30 @@
-/*
-  v1.0.8 - letzte Aenderung am 3. Februar 2021
-*/
+//Code edited by Julian Kropp, 2022 
 
+//libraries
 #include "FastLED.h"                      // Bibliothek einbinden, um LED ansteuern zu koennen
-
 #include <SPI.h>                          // Bibliotheken einbinden, um das OLED Display ansteuern zu koennen
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
 #include <ArduinoJson.h>                  // Bibliothek einbinden, um JSONs parsen zu koennen
-
 #include <math.h>                         // Bibliothek einbinden, um Temperaturen runden zu koennen
-
 #include <WiFiManager.h>                  // Bibliothek einbinden, um Uebergabe der WiFi Credentials ueber einen AP zu ermoeglichen
 WiFiManager wifiManager;
 WiFiClient client;
 
+//variables and constants 
+#define BRIGHTNESS  30
 #define OLED_RESET 0                       // "0" fuer ESP8266
 Adafruit_SSD1306 display(OLED_RESET);
-
 #define LED_DATA_PIN D5                    // an welchem Pin liegt die LED an?
-
 #define NUM_LEDS    8
 //LED Array mit NUM_LEDS Elementen
 CRGB leds[NUM_LEDS];
 #define x 100 //delay Variable 
+#define y 50
 // ========================  hier deinen API-Key eintragen!!!  ============================================================================================================
 const String city = "Oldenburg";
-const String api_key = "xxx";    // dein Open-Weather-Map-API-Schluessel, kostenlos beziehbar ueber https://openweathermap.org/
+const String api_key = "xxx";    // meinen API Key habe ich an dieser Stelle entfernt, da man API Keys nicht posten sollte. Bei Open-Weather nicht allzu schlimm, bei anderen APIs könnte man dann mehr Schabernak treiben
 // ========================================================================================================================================================================
 
 int weatherID = 0;
@@ -60,7 +56,7 @@ void setup() {
   }
   FastLED.show();
   leds[7] = CRGB::Red;                              // LED zu Beginn rot setzen, um sie zu testen
-  FastLED.setBrightness(255);
+  FastLED.setBrightness(  BRIGHTNESS );
   FastLED.show();
 
   // Falls es Probleme mit dem Portal gibt, kann man dieses auch über die IP 192.168.4.1 erreichen
@@ -183,44 +179,7 @@ void getCurrentWeatherConditions() {
   } if (weatherID == 800) weatherforecast_shortened = "klar";                    // nur fuer den Fall, dass die weather-ID genau 800 ist, ist es "klar"
 }
 
-
-// ========================================================================================================================================================================
-/*
-  ###### #    # #####  ######
-  #      #    # #    # #
-  #####  #    # #    # #####
-  #      #    # #####  #
-  #      #    # #   #  #
-  ######  ####  #    # ######
-  #######
-  #       ###### ###### ###### #    # ##### ######
-  #       #      #      #      #   #    #   #
-  #####   #####  #####  #####  ####     #   #####
-  #       #      #      #      #  #     #   #
-  #       #      #      #      #   #    #   #
-  ####### #      #      ###### #    #   #   ######
-  ###### # #    # ###### #    # ######  ####  ###### #    #
-  #      # ##   # #      #    # #      #    # #      ##   #
-  #####  # # #  # #####  #    # #####  #      #####  # #  #
-  #      # #  # # #      #    # #      #  ### #      #  # #
-  #      # #   ## #      #    # #      #    # #      #   ##
-  ###### # #    # #       ####  ######  ####  ###### #    #
-          ########
-          ########
-          ########
-          ########
-          ########
-          ########
-          ########
-          ########
-          ########
-          ########
-     ##################
-       ##############
-         ##########
-           ######
-             ##
-*/
+//Effekte
 
 void LED_effect_clearSky() { // Effekt, der angezeigt wird, wenn der Himmel klar ist
   FastLED.setBrightness(255);
@@ -234,40 +193,87 @@ void LED_effect_clearSky() { // Effekt, der angezeigt wird, wenn der Himmel klar
 
 
 void LED_effect_thunder() {
-  //LEDs nacheinander gelb schalten
+    //LEDs nacheinander gelb schalten
  for (int i=0; i<8; i++){
     leds[i] = CRGB( 255, 255, 0);
     FastLED.show(); 
     delay(x);
   }
-
+  }
+  
   
 
- //LEDs nacheinander ausschalten
- for (int i=0; i<8; i++){
-   leds[i] = CRGB( 0, 0, 0);
-   FastLED.show(); 
-   delay(x);
-  }
 
-}
 
 void LED_effect_drizzle() {
+  
+    //LEDs nacheinander aquablau schalten
+ for (int i=0; i<8; i++){
+    leds[i] = CRGB(0, 255, 255);
+    FastLED.show(); 
+    delay(x);
+  }
+  delay(y); //kurz warten
 
-}
+  //leds nacheinander wieder ausschalten, damit eine Fading-Animation entsteht 
+  for (int i=0; i<8; i++){
+    leds[i] = CRGB(0, 0, 0);
+    FastLED.show(); 
+    delay(x);
+  }
+
+  
+  }
+    
+
+
 
 void LED_effect_rain() {
-
+    //LEDs nacheinander blau schalten
+ for (int i=0; i<8; i++){
+    leds[i] = CRGB( 0, 0, 255);
+    FastLED.show(); 
+    delay(x/2);
+  }
+  //blinken
+  for (int i=0; i<8; i++){
+    leds[i] = CRGB(0, 0, 0);
+    FastLED.show(); 
+    delay(x/2);
+  }
+  
 }
+
+
 
 void LED_effect_snow() {
-
+    //LEDs nacheinander weiß schalten
+ for (int i=0; i<8; i++){
+    leds[i] = CRGB( 255, 255, 255);
+    FastLED.show(); 
+    delay(x);
+  }
 }
+
+
 
 void LED_effect_fog() {
-
+    //LEDs nacheinander olivgrün schalten
+ for (int i=0; i<8; i++){
+    leds[i] = CRGB( 85, 107, 47);
+    FastLED.show(); 
+    delay(x);
+  }
 }
 
+
+
 void LED_effect_cloudy() {
+        //LEDs nacheinander grau schalten
+ for (int i=0; i<8; i++){
+    leds[i] = CRGB( 119, 136, 153);
+    FastLED.show(); 
+    delay(x);
+  }
 
 }
