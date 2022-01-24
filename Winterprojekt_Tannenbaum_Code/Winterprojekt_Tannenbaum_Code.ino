@@ -199,6 +199,12 @@ void LED_effect_thunder() {
     FastLED.show(); 
     delay(x);
   }
+  //leds nacheinander wieder ausschalten, damit eine Fading-Animation entsteht 
+  for (int i=0; i<8; i++){
+    leds[i] = CRGB(0, 0, 0);
+    FastLED.show(); 
+    delay(x);
+  }
   }
   
   
